@@ -20,7 +20,11 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
   brew install cmake pkg-config glfw libomp
 
   # macOS: s’assurer que pkg-config voit les .pc de Homebrew
-  export PKG_CONFIG_PATH="$(brew --prefix)/lib/pkgconfig:{$PKG_CONFIG_PATH:-}"
+  export PKG_CONFIG_PATH="$(brew --prefix)/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
+
+  # Pour que clang trouve OpenMP (keg-only sous Homebrew)
+  export LDFLAGS="-L$(brew --prefix libomp)/lib ${LDFLAGS:-}"
+  export CPPFLAGS="-I$(brew --prefix libomp)/include ${CPPFLAGS:-}"
 
 elif [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "cygwin"* || "$OS" == "Windows_NT" ]]; then
   echo "→ Windows detected: installing via vcpkg"
