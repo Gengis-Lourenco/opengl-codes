@@ -1,0 +1,39 @@
+name: Cross-Platform CI
+
+on:
+  push:
+    branches: [ feature/opengl-share, main ]
+  pull_request:
+    branches: [ feature/opengl-share, main ]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: chmod +x install_deps.sh && ./install_deps.sh
+      - run: cmake -S . -B build -DUSE_OPENMP=ON -DCMAKE_BUILD_TYPE=Release
+      - run: cmake --build build
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: chmod +x install_deps.sh && ./install_deps.sh
+      - run: cmake -S . -B build -DUSE_OPENMP=ON -DCMAKE_BUILD_TYPE=Release
+      - run: cmake --build build
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies (via Git Bash)
+        run: bash install_deps.sh
+      - name: Configure
+        run: cmake -S . -B build \
+                   -DUSE_OPENMP=ON \
+                   -DCMAKE_BUILD_TYPE=Release \
+                   -DCMAKE_TOOLCHAIN_FILE=$(pwd)/vcpkg/scripts/buildsystems/vcpkg.cmake
+      - name: Build
+        run: cmake --build build --config Release
+
