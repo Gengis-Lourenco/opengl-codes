@@ -29,11 +29,15 @@ jobs:
       - uses: actions/checkout@v3
       - name: Install dependencies (via Git Bash)
         run: bash install_deps.sh
-      - name: Configure
-        run: cmake -S . -B build \
-                   -DUSE_OPENMP=OFF \
-                   -DCMAKE_BUILD_TYPE=Release \
-                   -DCMAKE_TOOLCHAIN_FILE=$(pwd)/vcpkg/scripts/buildsystems/vcpkg.cmake
-      - name: Build
-        run: cmake --build build --config Release
+      - name: Configure (Bash)
+        shell: bash
+        run: |
+          cmake -S . -B build \
+            -DUSE_OPENMP=OFF \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_TOOLCHAIN_FILE="$(pwd)/vcpkg/scripts/buildsystems/vcpkg.cmake"
 
+      - name: Build (Bash)
+        shell: bash
+        run: |
+          cmake --build build --config Release 
