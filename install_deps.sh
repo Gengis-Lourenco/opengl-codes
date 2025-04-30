@@ -30,7 +30,7 @@ elif [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "cygwin"* || "$OS" == "Windows_NT" 
   fi
   # Install dependencies in the default triplet (adjust if you are x86)
   ./vcpkg/vcpkg install \
-    glfw3 llvm-openmp
+    glfw3
 
   echo "When you run CMake, add:"
   echo "  -DCMAKE_TOOLCHAIN_FILE=\$(pwd)/vcpkg/scripts/buildsystems/vcpkg.cmake"
