@@ -2,9 +2,9 @@ name: Cross-Platform CI
 
 on:
   push:
-    branches: [ feature/opengl-share, main ]
+    branches: [ feature/opengl-share ]
   pull_request:
-    branches: [ feature/opengl-share, main ]
+    branches: [ feature/opengl-share ]
 
 jobs:
   build-linux:
