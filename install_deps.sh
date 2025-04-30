@@ -20,7 +20,7 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
   brew install cmake pkg-config glfw libomp
 
   # macOS: s’assurer que pkg-config voit les .pc de Homebrew
-  export PKG_CONFIG_PATH="$(brew --prefix)/lib/pkgconfig:$PKG_CONFIG_PATH"
+  export PKG_CONFIG_PATH="$(brew --prefix)/lib/pkgconfig:{$PKG_CONFIG_PATH:-}"
 
 elif [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "cygwin"* || "$OS" == "Windows_NT" ]]; then
   echo "→ Windows detected: installing via vcpkg"
