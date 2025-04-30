@@ -117,9 +117,13 @@ elseif(UNIX)
     # 8b) Interface target for GLFW3
     add_library(glfw3 INTERFACE)
     target_include_directories(glfw3 INTERFACE ${GLFW3_INCLUDE_DIRS})
-    #    -> Add the GLFW inclusion directories to the project include path
-    target_link_libraries(glfw3 INTERFACE ${GLFW3_LIBRARIES})
-else()
+
+    # ← On ajoute aussi les drapeaux LDFLAGS pour inclure le -L/opt/homebrew/lib
+    target_link_libraries(glfw3 INTERFACE 
+	    ${GLFW3_LDFLAGS} 
+	    ${GLFW3_LIBRARIES}
+    )
+    else()
     message(FATAL_ERROR "Unsupported platform: ${CMAKE_SYSTEM_NAME}")
 endif()    
 
