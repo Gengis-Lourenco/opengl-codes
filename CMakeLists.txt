@@ -95,51 +95,23 @@ list(APPEND EXTRA_LIBS Threads::Threads)
 
 
 # 7) Configure GLFW interface target
-if(WIN32)
-    # Windows : vcpkg must be active via -DCMAKE_TOOLCHAIN_FILE
-    find_package(glfw3 CONFIG REQUIRED)    # Finds the imported target glfw3::glfw
-    add_library(glfw3 INTERFACE IMPORTED)
-    set_property(TARGET glfw3 PROPERTY
-	    INTERFACE_LINK_LIBRARIES glfw3::glfw)
+# -------- GLFW (cross-platform wrapper via CMakeConfig) --------
+# Cherche le même paquet CMake sur toutes les plateformes
+# (libglfw3-dev sur Linux, Homebrew/vcpkg sur macOS/Windows).
+find_package(glfw3 CONFIG REQUIRED)
 
-# -------- GLFW (interfaçage cross-platform) --------
-if(APPLE)
-  # 8a) macOS – Homebrew fournit glfw3Config.cmake et un target IMPORTED
-  find_package(glfw3 CONFIG REQUIRED)
+# Expose un target INTERFACE "glfw3"
+add_library(glfw3 INTERFACE IMPORTED)
 
-  # Wrapper INTERFACE “glfw3” sur le target importé
-  add_library(glfw3 INTERFACE IMPORTED)
-  if(TARGET GLFW::GLFW)
-    # Propager include + link de GLFW::GLFW
-    set_property(TARGET glfw3 PROPERTY
-      INTERFACE_INCLUDE_DIRECTORIES
-        $<TARGET_PROPERTY:GLFW::GLFW,INTERFACE_INCLUDE_DIRECTORIES>)
-    set_property(TARGET glfw3 PROPERTY
-      INTERFACE_LINK_LIBRARIES GLFW::GLFW)
-  elseif(TARGET glfw)
-    set_property(TARGET glfw3 PROPERTY
-      INTERFACE_INCLUDE_DIRECTORIES
-        $<TARGET_PROPERTY:glfw,INTERFACE_INCLUDE_DIRECTORIES>)
-    set_property(TARGET glfw3 PROPERTY
-      INTERFACE_LINK_LIBRARIES glfw)
-  else()
-    message(FATAL_ERROR "Imported GLFW target not found on macOS")
-  endif()
-
-elseif(UNIX)
-  # 8b) Linux – on continue d’utiliser pkg-config
-  find_package(PkgConfig REQUIRED)
-  pkg_search_module(GLFW3 REQUIRED glfw3)
-
-  add_library(glfw3 INTERFACE)
-  target_include_directories(glfw3 INTERFACE ${GLFW3_INCLUDE_DIRS})
-  target_link_libraries(glfw3 INTERFACE
-    ${GLFW3_LDFLAGS}
-    ${GLFW3_LIBRARIES}
-  )
-
+# Le target importé peut être GLFW::GLFW ou glfw
+if(TARGET GLFW::GLFW)
+  set_property(TARGET glfw3 PROPERTY
+    INTERFACE_LINK_LIBRARIES GLFW::GLFW)
+elseif(TARGET glfw)
+  set_property(TARGET glfw3 PROPERTY
+    INTERFACE_LINK_LIBRARIES glfw)
 else()
-  message(FATAL_ERROR "Unsupported platform: ${CMAKE_SYSTEM_NAME}")
+  message(FATAL_ERROR "Could not find an imported GLFW target")
 endif()
 
 
