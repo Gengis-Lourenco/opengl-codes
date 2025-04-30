@@ -31,7 +31,7 @@ jobs:
         run: bash install_deps.sh
       - name: Configure
         run: cmake -S . -B build \
-                   -DUSE_OPENMP=ON \
+                   -DUSE_OPENMP=OFF \
                    -DCMAKE_BUILD_TYPE=Release \
                    -DCMAKE_TOOLCHAIN_FILE=$(pwd)/vcpkg/scripts/buildsystems/vcpkg.cmake
       - name: Build
