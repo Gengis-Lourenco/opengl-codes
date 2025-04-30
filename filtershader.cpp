@@ -1,3 +1,26 @@
+#ifdef _WIN32
+  // Windows n’a pas <sys/time.h> : on bascule sur chrono pour gettimeofday()
+  #include <chrono>
+  inline double get_time_seconds() {
+    using namespace std::chrono;
+    return duration<double>(high_resolution_clock::now().time_since_epoch()).count();
+  }
+#else
+  // Sur Unix, on garde sys/time.h et gettimeofday()
+  #include <sys/time.h>
+  inline double get_time_seconds() {
+    struct timeval tv;
+    gettimeofday(&tv, nullptr);
+    return tv.tv_sec + tv.tv_usec * 1e-6;
+  }
+#endif
+
+
+// Millisecond timestamp, wrapper portable
+inline double millitime() {
+  return 1000.0 * get_time_seconds();
+}
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstdint>
@@ -7,7 +30,6 @@
 #endif
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <sys/time.h>
 #include <vector>
 #include <algorithm>
 #include <string>
@@ -27,12 +49,6 @@
 #define PLANE_Z 2
 
 // Measuring the time in milliseconds
-double millitime() {
-    struct timeval tp;
-    if(gettimeofday(&tp, nullptr))
-        return 0;
-    return 1000.0 * tp.tv_sec + 0.001 * tp.tv_usec;
-}
 
 // Saving in PPM format (reading the framebuffer with glReadPixels)
 void savePPM(const char* filename, int width, int height) {
