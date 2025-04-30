@@ -101,31 +101,47 @@ if(WIN32)
     add_library(glfw3 INTERFACE IMPORTED)
     set_property(TARGET glfw3 PROPERTY
 	    INTERFACE_LINK_LIBRARIES glfw3::glfw)
-elseif(UNIX)       
-    # 8a) Linux/macOS : pkg-config
-    find_package(PkgConfig REQUIRED)
-    #    -> Imposing the availability of pkg-config to find GLFW
-    #      The GLFW3 package supplies a glfw3.pc file
 
-    pkg_search_module(GLFW3 REQUIRED glfw3)
-    #    -> Query the "glfw3" pkg-config module: 
-    #       On Linux : provided by libglfw3-dev       
-    #       On macOS : Homebrew's "glfw" package installs a glfw3.pc entry
-    message(STATUS "GLFW3 include dirs : ${GLFW3_INCLUDE_DIRS}")
-    message(STATUS "GLFW3 libraries    : ${GLFW3_LIBRARIES}")
+# -------- GLFW (interfaçage cross-platform) --------
+if(APPLE)
+  # 8a) macOS – Homebrew fournit glfw3Config.cmake et un target IMPORTED
+  find_package(glfw3 CONFIG REQUIRED)
 
-    # 8b) Interface target for GLFW3
-    add_library(glfw3 INTERFACE)
-    target_include_directories(glfw3 INTERFACE ${GLFW3_INCLUDE_DIRS})
+  # Wrapper INTERFACE “glfw3” sur le target importé
+  add_library(glfw3 INTERFACE IMPORTED)
+  if(TARGET GLFW::GLFW)
+    # Propager include + link de GLFW::GLFW
+    set_property(TARGET glfw3 PROPERTY
+      INTERFACE_INCLUDE_DIRECTORIES
+        $<TARGET_PROPERTY:GLFW::GLFW,INTERFACE_INCLUDE_DIRECTORIES>)
+    set_property(TARGET glfw3 PROPERTY
+      INTERFACE_LINK_LIBRARIES GLFW::GLFW)
+  elseif(TARGET glfw)
+    set_property(TARGET glfw3 PROPERTY
+      INTERFACE_INCLUDE_DIRECTORIES
+        $<TARGET_PROPERTY:glfw,INTERFACE_INCLUDE_DIRECTORIES>)
+    set_property(TARGET glfw3 PROPERTY
+      INTERFACE_LINK_LIBRARIES glfw)
+  else()
+    message(FATAL_ERROR "Imported GLFW target not found on macOS")
+  endif()
 
-    # ← On ajoute aussi les drapeaux LDFLAGS pour inclure le -L/opt/homebrew/lib
-    target_link_libraries(glfw3 INTERFACE 
-	    ${GLFW3_LDFLAGS} 
-	    ${GLFW3_LIBRARIES}
-    )
-    else()
-    message(FATAL_ERROR "Unsupported platform: ${CMAKE_SYSTEM_NAME}")
-endif()    
+elseif(UNIX)
+  # 8b) Linux – on continue d’utiliser pkg-config
+  find_package(PkgConfig REQUIRED)
+  pkg_search_module(GLFW3 REQUIRED glfw3)
+
+  add_library(glfw3 INTERFACE)
+  target_include_directories(glfw3 INTERFACE ${GLFW3_INCLUDE_DIRS})
+  target_link_libraries(glfw3 INTERFACE
+    ${GLFW3_LDFLAGS}
+    ${GLFW3_LIBRARIES}
+  )
+
+else()
+  message(FATAL_ERROR "Unsupported platform: ${CMAKE_SYSTEM_NAME}")
+endif()
+
 
 
 # 9) Find OpenGL (built-in CMake module)
