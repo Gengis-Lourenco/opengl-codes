@@ -166,7 +166,7 @@ function(add_salami_target NAME SRC)
       glad
       meshb7
       glfw3
-      opengl_lib
+      openGL::GL
       ${EXTRA_LIBS}
   )
 endfunction()
